@@ -21,27 +21,31 @@ void printLocalTime()
 
 // setting PWM properties
 const int freq = 5000;
-const int ledChannel = 0;
+//const int ledChannel = 0;
 const int resolution = 8;
 
 void setup()
 {
    // configure LED PWM functionalitites
-  ledcSetup(ledChannel, freq, resolution);
+  ledcSetup(0, freq, resolution);
+  ledcSetup(1, freq, resolution);
   // attach the channel to the GPIO to be controlled
-  ledcAttachPin(16, ledChannel);
+  ledcAttachPin(16, 0);
+  ledcAttachPin(17, 1);
   
   Serial.begin(115200);
   
   //connect to WiFi
   Serial.printf("Connecting to %s ", ssid);
   WiFi.begin(ssid, password);
+  led(250, true);
   while (WiFi.status() != WL_CONNECTED) {
       delay(500);
       Serial.print(".");
   }
   Serial.println(" CONNECTED");
   beep(1,false);
+  led(0, false);
   
   //init and get the time
   configTime(gmtOffset_sec * timeZone, daylightOffset_sec, ntpServer);
@@ -62,14 +66,26 @@ void beep(int repeat, bool shortorlong)
 {
   uint8_t time;
   
-  if(!shortorlong)
+  if(shortorlong)
     time = 100;
   else
     time = 250;
     
   for(int i=0; i<repeat;i++){
-    ledcWrite(ledChannel, time);
-    delay(200);
-    ledcWrite(ledChannel, 0);
+    ledcWrite(0, 200);
+    delay(time);
+    ledcWrite(0, 0);
+  }
+}
+
+void led(int level, bool onoff)
+{
+  if(onoff){
+    ledcWrite(1, level);
+    Serial.printf("led is On");
+  }
+  else{
+    ledcWrite(1, 0);
+    Serial.printf("led is Off");
   }
 }
