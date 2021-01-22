@@ -41,7 +41,7 @@ void setup()
       Serial.print(".");
   }
   Serial.println(" CONNECTED");
-  beep(1);
+  beep(1,false);
   
   //init and get the time
   configTime(gmtOffset_sec * timeZone, daylightOffset_sec, ntpServer);
@@ -58,10 +58,17 @@ void loop()
   printLocalTime();
 }
 
-void beep(int repeat)
+void beep(int repeat, bool shortorlong)
 {
+  uint8_t time;
+  
+  if(!shortorlong)
+    time = 100;
+  else
+    time = 250;
+    
   for(int i=0; i<repeat;i++){
-    ledcWrite(ledChannel, 100);
+    ledcWrite(ledChannel, time);
     delay(200);
     ledcWrite(ledChannel, 0);
   }
