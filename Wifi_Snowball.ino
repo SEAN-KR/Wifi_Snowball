@@ -35,6 +35,14 @@ const int   daylightOffset_sec = 3600;
 // Option 1: use any pins but a little slower
 Adafruit_SSD1351 tft = Adafruit_SSD1351(SCREEN_WIDTH, SCREEN_HEIGHT, CS_PIN, DC_PIN, MOSI_PIN, SCLK_PIN, RST_PIN); 
 
+// declare size of working string buffers. Basic strlen("d hh:mm:ss") = 10
+const size_t    MaxString               = 50;
+
+char timeStringBuff[MaxString]; //50 chars should be enough
+
+// the string being displayed on the SSD1331 (initially empty)
+char oldTimeString[MaxString]           = { 0 };
+
 void printLocalTime()
 {
   struct tm timeinfo;
@@ -42,7 +50,11 @@ void printLocalTime()
     Serial.println("Failed to obtain time");
     return;
   }
-  Serial.println(&timeinfo, "%A, %B %d %Y %H:%M:%S");
+//  Serial.println(&timeinfo, "%A, %B %d %Y %H:%M:%S");
+  strftime(timeStringBuff, sizeof(timeStringBuff), "%A, %B %d %Y %H:%M:%S", &timeinfo);
+  //print like "const char*"
+  //Serial.println(timeStringBuff);
+  testdrawtext(timeStringBuff, WHITE);
 }
 
 hw_timer_t * timer = NULL;
@@ -73,6 +85,34 @@ void lcdTestPattern(void)
     tft.fillRect(0, tft.height() * c / 8, tft.width(), tft.height() / 8,
       pgm_read_word(&colors[c]));
   }
+}
+
+void testdrawtext(char *text, uint16_t color) {
+      // has the time string changed since the last oled update?
+    if (strcmp(text,oldTimeString) != 0) {
+
+        // yes! home the cursor
+        tft.setCursor(0,0);
+
+        // change the text color to the background color
+        tft.setTextColor(BLACK);
+
+        // redraw the old value to erase
+        tft.print(oldTimeString);
+
+        // home the cursor
+        tft.setCursor(0,0);
+        
+        // change the text color to foreground color
+        tft.setTextColor(color);
+    
+        // draw the new time value
+        tft.print(text);
+    
+        // and remember the new value
+        strcpy(oldTimeString,text);
+        
+    }
 }
 
 void setup() {
@@ -114,9 +154,9 @@ void setup() {
   WiFi.mode(WIFI_OFF); //connect to WiFi
 
   tft.begin();
-  tft.fillRect(0, 0, 128, 128, BLACK);
   lcdTestPattern();
-  delay(500);
+  delay(1000);
+  tft.fillScreen(BLACK);
 }
 
 void loop() {
@@ -128,11 +168,13 @@ void loop() {
     isrCount = isrCounter;
     isrTime = lastIsrAt;
     portEXIT_CRITICAL(&timerMux);
+    /*
     // Print it
     Serial.print("onTimer no. ");
     Serial.print(isrCount);
     Serial.print(" at ");
     Serial.print(isrTime);
     Serial.println(" ms");
+    */
   }
 }
