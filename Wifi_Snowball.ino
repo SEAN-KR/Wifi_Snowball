@@ -1,12 +1,3 @@
-/*
- Repeat timer example
-
- This example shows how to use hardware timer in ESP32. The timer calls onTimer
- function every second. The timer can be stopped with button attached to PIN 0
- (IO0).
-
- This example code is in the public domain.
- */
 #include <WiFi.h>
 #include "time.h"
 #include <Adafruit_GFX.h>
@@ -32,7 +23,7 @@ const int   daylightOffset_sec = 3600;
 #define RST_PIN  16 //6
 
 // Color definitions
-#define  BLACK           0x0000
+#define BLACK           0x0000
 #define BLUE            0x001F
 #define RED             0xF800
 #define GREEN           0x07E0
@@ -53,9 +44,6 @@ void printLocalTime()
   }
   Serial.println(&timeinfo, "%A, %B %d %Y %H:%M:%S");
 }
-
-// Stop button is attached to PIN 0 (IO0)
-#define BTN_STOP_ALARM    0
 
 hw_timer_t * timer = NULL;
 volatile SemaphoreHandle_t timerSemaphore;
@@ -89,9 +77,6 @@ void lcdTestPattern(void)
 
 void setup() {
   Serial.begin(115200);
-
-  // Set BTN_STOP_ALARM to input mode
-  pinMode(BTN_STOP_ALARM, INPUT);
 
   // Create semaphore to inform us when the timer has fired
   timerSemaphore = xSemaphoreCreateBinary();
@@ -149,14 +134,5 @@ void loop() {
     Serial.print(" at ");
     Serial.print(isrTime);
     Serial.println(" ms");
-  }
-  // If button is pressed
-  if (digitalRead(BTN_STOP_ALARM) == LOW) {
-    // If timer is still running
-    if (timer) {
-      // Stop and free timer
-      timerEnd(timer);
-      timer = NULL;
-    }
   }
 }
