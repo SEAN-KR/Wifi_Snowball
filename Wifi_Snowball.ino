@@ -32,6 +32,14 @@ const int   daylightOffset_sec = 3600;
 #define YELLOW          0xFFE0  
 #define WHITE           0xFFFF
 
+
+hw_timer_t * timer = NULL;
+volatile SemaphoreHandle_t timerSemaphore;
+portMUX_TYPE timerMux = portMUX_INITIALIZER_UNLOCKED;
+
+volatile uint32_t isrCounter = 0;
+volatile uint32_t lastIsrAt = 0;
+
 // Option 1: use any pins but a little slower
 Adafruit_SSD1351 tft = Adafruit_SSD1351(SCREEN_WIDTH, SCREEN_HEIGHT, CS_PIN, DC_PIN, MOSI_PIN, SCLK_PIN, RST_PIN); 
 
@@ -42,6 +50,11 @@ char timeStringBuff[MaxString]; //50 chars should be enough
 
 // the string being displayed on the SSD1331 (initially empty)
 char oldTimeString[MaxString]           = { 0 };
+
+// setting PWM properties
+const int freq = 5000;
+const int ledChannel = 0;
+const int resolution = 8;
 
 void printLocalTime()
 {
@@ -56,13 +69,6 @@ void printLocalTime()
   //Serial.println(timeStringBuff);
   testdrawtext(timeStringBuff, WHITE);
 }
-
-hw_timer_t * timer = NULL;
-volatile SemaphoreHandle_t timerSemaphore;
-portMUX_TYPE timerMux = portMUX_INITIALIZER_UNLOCKED;
-
-volatile uint32_t isrCounter = 0;
-volatile uint32_t lastIsrAt = 0;
 
 void IRAM_ATTR onTimer(){
   // Increment the counter and set the time of ISR
@@ -115,9 +121,23 @@ void testdrawtext(char *text, uint16_t color) {
     }
 }
 
+void beep(int repeat)
+{
+  for(int i=0; i<repeat;i++){
+    ledcWrite(ledChannel, 100);
+    delay(200);
+    ledcWrite(ledChannel, 0);
+  }
+}
+
 void setup() {
   Serial.begin(115200);
 
+  // configure LED PWM functionalitites
+  ledcSetup(ledChannel, freq, resolution);
+  // attach the channel to the GPIO to be controlled
+  ledcAttachPin(22, ledChannel);
+  
   // Create semaphore to inform us when the timer has fired
   timerSemaphore = xSemaphoreCreateBinary();
 
@@ -144,6 +164,7 @@ void setup() {
       Serial.print(".");
   }
   Serial.println(" CONNECTED");
+  beep(1);
   
   //init and get the time
   configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
