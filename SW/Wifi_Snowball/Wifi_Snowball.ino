@@ -56,20 +56,6 @@ const int freq = 5000;
 const int ledChannel = 0;
 const int resolution = 8;
 
-void printLocalTime()
-{
-  struct tm timeinfo;
-  if(!getLocalTime(&timeinfo)){
-    Serial.println("Failed to obtain time");
-    return;
-  }
-//  Serial.println(&timeinfo, "%A, %B %d %Y %H:%M:%S");
-  strftime(timeStringBuff, sizeof(timeStringBuff), "%A, %B %d %Y %H:%M:%S", &timeinfo);
-  //print like "const char*"
-  //Serial.println(timeStringBuff);
-  testdrawtext(timeStringBuff, WHITE);
-}
-
 void IRAM_ATTR onTimer(){
   // Increment the counter and set the time of ISR
   portENTER_CRITICAL_ISR(&timerMux);
@@ -82,6 +68,49 @@ void IRAM_ATTR onTimer(){
   printLocalTime();
 }
 
+void printLocalTime()
+{
+  struct tm timeinfo;
+  if(!getLocalTime(&timeinfo)){
+    Serial.println("Failed to obtain time");
+    return;
+  }
+//  Serial.println(&timeinfo, "%A, %B %d %Y %H:%M:%S");
+  strftime(timeStringBuff, sizeof(timeStringBuff), "%A, %B %d %Y %H:%M:%S", &timeinfo);
+  //print like "const char*"
+  //Serial.println(timeStringBuff);
+  updatedrawtext(timeStringBuff, WHITE);
+}
+
+void updatedrawtext(char *text, uint16_t color) {
+  String temp = text;
+  // has the time string changed since the last oled update?
+  if (strcmp(text,oldTimeString) != 0) {
+    Serial.println("update lcd");
+    // home the cursor
+    tft.setCursor(7,40);
+    
+    // change the text color to foreground color
+    tft.setTextColor(color, BLACK);
+    tft.setTextSize(4);
+    
+    // draw the new time value
+    tft.print(temp.substring(24,29));
+    // home the cursor
+    tft.setCursor(5,80);
+    
+    // change the text color to foreground color
+    tft.setTextColor(color, BLACK);
+    tft.setTextSize(1);
+    
+    // draw the new time value
+    tft.print(temp.substring(0,18));
+    
+    // and remember the new value
+    strcpy(oldTimeString,text);
+  }
+}
+
 void lcdTestPattern(void)
 {
   static const uint16_t PROGMEM colors[] =
@@ -91,34 +120,6 @@ void lcdTestPattern(void)
     tft.fillRect(0, tft.height() * c / 8, tft.width(), tft.height() / 8,
       pgm_read_word(&colors[c]));
   }
-}
-
-void testdrawtext(char *text, uint16_t color) {
-      // has the time string changed since the last oled update?
-    if (strcmp(text,oldTimeString) != 0) {
-
-        // yes! home the cursor
-        tft.setCursor(0,0);
-
-        // change the text color to the background color
-        tft.setTextColor(BLACK);
-
-        // redraw the old value to erase
-        tft.print(oldTimeString);
-
-        // home the cursor
-        tft.setCursor(0,0);
-        
-        // change the text color to foreground color
-        tft.setTextColor(color);
-    
-        // draw the new time value
-        tft.print(text);
-    
-        // and remember the new value
-        strcpy(oldTimeString,text);
-        
-    }
 }
 
 void beep(int repeat)
@@ -136,7 +137,7 @@ void setup() {
   // configure LED PWM functionalitites
   ledcSetup(ledChannel, freq, resolution);
   // attach the channel to the GPIO to be controlled
-  ledcAttachPin(22, ledChannel);
+  ledcAttachPin(15, ledChannel);
   
   // Create semaphore to inform us when the timer has fired
   timerSemaphore = xSemaphoreCreateBinary();
@@ -167,7 +168,7 @@ void setup() {
   beep(1);
   
   //init and get the time
-  configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
+  configTime(gmtOffset_sec * 9, daylightOffset_sec, ntpServer);
   printLocalTime();
 
   //disconnect WiFi as it's no longer needed
@@ -175,9 +176,10 @@ void setup() {
   WiFi.mode(WIFI_OFF); //connect to WiFi
 
   tft.begin();
-  lcdTestPattern();
+//  lcdTestPattern();
   delay(1000);
   tft.fillScreen(BLACK);
+  delay(1000);
 }
 
 void loop() {
