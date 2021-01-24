@@ -78,10 +78,10 @@ void loading_popup() {
   if (oneshot) {
     Serial.println("loading popup displayed");
 
-    tft.drawRGBBitmap(39, 0, logo, pngwing_com_width, pngwing_com_height);
+    tft.drawRGBBitmap(39, 15, logo, pngwing_com_width, pngwing_com_height);
     
     // home the cursor
-    tft.setCursor(5,70);
+    tft.setCursor(5,80);
     
     // change the text color to foreground color
     tft.setTextColor(WHITE, BLACK);
@@ -101,7 +101,7 @@ void updatedrawtext(char *text, uint16_t color) {
     Serial.println("update lcd");
  
     // home the cursor
-    tft.setCursor(5,60);
+    tft.setCursor(5,70);
     
     // change the text color to foreground color
     tft.setTextColor(color, BLACK);
@@ -110,7 +110,7 @@ void updatedrawtext(char *text, uint16_t color) {
     // draw the new time value
     tft.print(temp.substring(24,29));
     // home the cursor
-    tft.setCursor(10,100);
+    tft.setCursor(10,110);
     
     // change the text color to foreground color
     tft.setTextColor(color, BLACK);
