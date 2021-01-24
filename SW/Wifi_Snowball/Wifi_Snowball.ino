@@ -241,7 +241,7 @@ String style =
 String loginIndex = 
 "<form name=loginForm>"
 "<h1>Snowball Update</h1>"
-"<input name=userid placeholder='User ID'> "
+"<input name=userid placeholder='User ID (ver. 1.0.1)'> "
 "<input name=pwd placeholder=Password type=Password> "
 "<input type=submit onclick=check(this.form) class=btn value=Login></form>"
 "<script>"
@@ -398,7 +398,13 @@ void beep(int repeat)
 
 void setup() {
   Serial.begin(115200);
-
+  Serial.println("Ver 0.1.1");
+  
+  tft.begin();
+  tft.fillScreen(BLACK);
+  delay(1000);
+  loading_popup();
+  
   // configure LED PWM functionalitites
   ledcSetup(ledChannel, freq, resolution);
   // attach the channel to the GPIO to be controlled
@@ -417,7 +423,7 @@ void setup() {
 
   // Set alarm to call onTimer function every second (value in microseconds).
   // Repeat the alarm (third parameter)
-  timerAlarmWrite(timer, 1000000, true);
+  timerAlarmWrite(timer, 10000000, true);
 
   // Start an alarm
   timerAlarmEnable(timer);
@@ -440,14 +446,6 @@ void setup() {
   configTime(gmtOffset_sec * 9, daylightOffset_sec, ntpServer);
   printLocalTime();
 
-  //disconnect WiFi as it's no longer needed
-  //WiFi.disconnect(true);
-  //WiFi.mode(WIFI_OFF); //connect to WiFi
-
-  tft.begin();
-  tft.fillScreen(BLACK);
-  delay(1000);
-  loading_popup();
   /*use mdns for host name resolution*/
   if (!MDNS.begin(host)) { //http://esp32.local
     Serial.println("Error setting up MDNS responder!");
@@ -473,6 +471,7 @@ void setup() {
   }, []() {
     HTTPUpload& upload = server.upload();
     if (upload.status == UPLOAD_FILE_START) {
+      timerAlarmDisable(timer);
       Serial.printf("Update: %s\n", upload.filename.c_str());
       if (!Update.begin(UPDATE_SIZE_UNKNOWN)) { //start with max available size
         Update.printError(Serial);
