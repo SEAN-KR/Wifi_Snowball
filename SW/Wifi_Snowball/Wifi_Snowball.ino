@@ -32,6 +32,7 @@ const int   daylightOffset_sec = 3600;
 #define YELLOW          0xFFE0  
 #define WHITE           0xFFFF
 
+bool oneshot = true;
 
 hw_timer_t * timer = NULL;
 volatile SemaphoreHandle_t timerSemaphore;
@@ -76,10 +77,29 @@ void printLocalTime()
     return;
   }
 //  Serial.println(&timeinfo, "%A, %B %d %Y %H:%M:%S");
-  strftime(timeStringBuff, sizeof(timeStringBuff), "%A, %B %d %Y %H:%M:%S", &timeinfo);
+  //strftime(timeStringBuff, sizeof(timeStringBuff), "%A, %B %d %Y %H:%M:%S", &timeinfo);
+  strftime(timeStringBuff, sizeof(timeStringBuff), "%A, %B %d %Y %H:%M", &timeinfo);
   //print like "const char*"
   //Serial.println(timeStringBuff);
   updatedrawtext(timeStringBuff, WHITE);
+}
+
+void loading_popup() {
+  // has the time string changed since the last oled update?
+  if (oneshot) {
+    Serial.println("loading popup displayed");
+    // home the cursor
+    tft.setCursor(7,40);
+    
+    // change the text color to foreground color
+    tft.setTextColor(WHITE, BLACK);
+    tft.setTextSize(2);
+    
+    // draw the new time value
+    tft.print("Loading...");
+    
+    oneshot = false;
+  }
 }
 
 void updatedrawtext(char *text, uint16_t color) {
@@ -176,9 +196,9 @@ void setup() {
   WiFi.mode(WIFI_OFF); //connect to WiFi
 
   tft.begin();
-//  lcdTestPattern();
-  delay(1000);
   tft.fillScreen(BLACK);
+  delay(1000);
+  loading_popup();
   delay(1000);
 }
 
