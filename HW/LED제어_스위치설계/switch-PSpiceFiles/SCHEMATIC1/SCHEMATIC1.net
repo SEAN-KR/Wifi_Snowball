@@ -1,0 +1,6 @@
+* source SWITCH
+V_V1         N14463 0 3.3v
+V_V2         N14529 0 5V
+X_Q1         N17220 N14463 0 awb2n2222 PARAMS:                                 
++            
+R_R1         N17220 N14529  10 TC=0,0 

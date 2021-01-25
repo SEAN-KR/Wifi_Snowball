@@ -1,0 +1,142 @@
+
+**** 01/25/21 14:21:07 ****** PSpice Lite (October 2012) ****** ID# 10813 ****
+
+ ** Profile: "SCHEMATIC1-test"  [ C:\Users\izbea\Desktop\test\2\switch-PSpiceFiles\SCHEMATIC1\test.sim ] 
+
+
+ ****     CIRCUIT DESCRIPTION
+
+
+******************************************************************************
+
+
+
+
+** Creating circuit file "test.cir" 
+** WARNING: THIS AUTOMATICALLY GENERATED FILE MAY BE OVERWRITTEN BY SUBSEQUENT SIMULATIONS
+
+*Libraries: 
+* Profile Libraries :
+* Local Libraries :
+* From [PSPICE NETLIST] section of C:\Users\izbea\AppData\Roaming\SPB_16.6\cdssetup\OrCAD_PSpice/16.6.0/PSpice.ini file:
+.lib "nomd.lib" 
+
+*Analysis directives: 
+.TRAN  0 1000ns 0 
+.OPTIONS ADVCONV
+.PROBE64 V(alias(*)) I(alias(*)) W(alias(*)) D(alias(*)) NOISE(alias(*)) 
+.INC "..\SCHEMATIC1.net" 
+
+
+
+**** INCLUDING SCHEMATIC1.net ****
+* source SWITCH
+V_V1         N14463 0 3.3v
+V_V2         N14529 0 5V
+X_Q1         N17220 N14463 0 awb2n2222 PARAMS:                                 
++            
+R_R1         N17220 N14529  10 TC=0,0 
+
+**** RESUMING test.cir ****
+.END
+
+**** 01/25/21 14:21:07 ****** PSpice Lite (October 2012) ****** ID# 10813 ****
+
+ ** Profile: "SCHEMATIC1-test"  [ C:\Users\izbea\Desktop\test\2\switch-PSpiceFiles\SCHEMATIC1\test.sim ] 
+
+
+ ****     BJT MODEL PARAMETERS
+
+
+******************************************************************************
+
+
+
+
+               X_Q1.model4     
+               NPN             
+       LEVEL    1            
+          IS  166.780000E-15 
+          BF  150            
+          NF    1.074        
+         VAF   78            
+         IKF     .5          
+         ISE    3.920000E-12 
+          NE    1.776        
+          BR    2.394        
+          NR    1.074        
+         VAR  500            
+          NC    1            
+         ISS    0            
+          RB   29.324        
+         RBM     .676        
+          RE     .1          
+          RC    2.346        
+         CJE    6.750000E-12 
+         VJE    1.333        
+         MJE     .522        
+         CJC    9.630000E-12 
+         VJC    1.333        
+         MJC     .518        
+        XCJC     .5          
+         CJS    0            
+         VJS     .7          
+         MJS     .5          
+          TF  181.600000E-12 
+         XTF   13.24         
+         VTF    4.83         
+         ITF     .2163       
+          TR   32.500000E-09 
+         XTB    2.34         
+          KF    0            
+          AF    1            
+          CN    2.42         
+           D     .87         
+
+
+**** 01/25/21 14:21:07 ****** PSpice Lite (October 2012) ****** ID# 10813 ****
+
+ ** Profile: "SCHEMATIC1-test"  [ C:\Users\izbea\Desktop\test\2\switch-PSpiceFiles\SCHEMATIC1\test.sim ] 
+
+
+ ****     INITIAL TRANSIENT SOLUTION       TEMPERATURE =   27.000 DEG C
+
+
+******************************************************************************
+
+
+
+ NODE   VOLTAGE     NODE   VOLTAGE     NODE   VOLTAGE     NODE   VOLTAGE
+
+
+(N14463)    3.3000 (N14529)    5.0000 (N17220)    1.0317 
+
+
+
+
+    VOLTAGE SOURCE CURRENTS
+    NAME         CURRENT
+
+    V_V1        -2.039E-01
+    V_V2        -3.968E-01
+
+    TOTAL POWER DISSIPATION   2.66E+00  WATTS
+
+
+
+          JOB CONCLUDED
+
+**** 01/25/21 14:21:07 ****** PSpice Lite (October 2012) ****** ID# 10813 ****
+
+ ** Profile: "SCHEMATIC1-test"  [ C:\Users\izbea\Desktop\test\2\switch-PSpiceFiles\SCHEMATIC1\test.sim ] 
+
+
+ ****     JOB STATISTICS SUMMARY
+
+
+******************************************************************************
+
+
+
+  Total job time (using Solver 1)   =         .02
+
