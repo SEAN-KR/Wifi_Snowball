@@ -49,8 +49,8 @@ WebServer server(80);
 void IRAM_ATTR onTimer(){
   // Increment the counter and set the time of ISR
   portENTER_CRITICAL_ISR(&timerMux);
-  isrCounter++;
-  lastIsrAt = millis();
+  //isrCounter++;
+  //lastIsrAt = millis();
   portEXIT_CRITICAL_ISR(&timerMux);
   // Give a semaphore that we can check in the loop
   xSemaphoreGiveFromISR(timerSemaphore, NULL);
@@ -69,7 +69,7 @@ void printLocalTime()
   //strftime(timeStringBuff, sizeof(timeStringBuff), "%A, %B %d %Y %H:%M:%S", &timeinfo);
   strftime(timeStringBuff, sizeof(timeStringBuff), "%A, %B %d %Y %H:%M", &timeinfo);
   //print like "const char*"
-  //Serial.println(timeStringBuff);
+  Serial.println(timeStringBuff);
   updatedrawtext(timeStringBuff, WHITE);
 }
 
@@ -96,6 +96,7 @@ void loading_popup() {
 
 void updatedrawtext(char *text, uint16_t color) {
   String temp = text;
+  int index;
   // has the time string changed since the last oled update?
   if (strcmp(text,oldTimeString) != 0) {
     Serial.println("update lcd");
@@ -108,16 +109,18 @@ void updatedrawtext(char *text, uint16_t color) {
     tft.setTextSize(4);
     
     // draw the new time value
-    tft.print(temp.substring(24,29));
+    index = temp.indexOf(":");
+    tft.print(temp.substring(index-2,index+3));
     // home the cursor
-    tft.setCursor(10,110);
+    tft.setCursor(7,110);
     
     // change the text color to foreground color
     tft.setTextColor(color, BLACK);
     tft.setTextSize(1);
-    
+
+    index = temp.length();
     // draw the new time value
-    tft.print(temp.substring(0,18));
+    tft.print(temp.substring(0,index-10));
     
     // and remember the new value
     strcpy(oldTimeString,text);
@@ -180,7 +183,7 @@ void setup() {
   Serial.printf("Connecting to %s ", ssid);
   WiFi.begin(ssid, password);
   while (WiFi.status() != WL_CONNECTED) {
-      delay(500);
+      delay(350);
       Serial.print(".");
   }
   Serial.println("");
