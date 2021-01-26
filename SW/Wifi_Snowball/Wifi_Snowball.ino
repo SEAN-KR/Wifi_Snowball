@@ -1,4 +1,3 @@
-#include <WiFi.h>
 #include <WiFiClient.h>
 #include <WebServer.h>
 #include <ESPmDNS.h>
@@ -10,10 +9,9 @@
 #include "logo.h"
 #include "web.h"
 #include "lcd.h"
+#include "wps.h"
 
 const char* host       = "esp32";
-const char* ssid       = "NETGEAR06";
-const char* password   = "71115925";
 
 const char* ntpServer = "pool.ntp.org";
 const long  gmtOffset_sec = 3600;
@@ -179,19 +177,6 @@ void setup() {
   // Start an alarm
   timerAlarmEnable(timer);
 
-   //connect to WiFi
-  Serial.printf("Connecting to %s ", ssid);
-  WiFi.begin(ssid, password);
-  while (WiFi.status() != WL_CONNECTED) {
-      delay(350);
-      Serial.print(".");
-  }
-  Serial.println("");
-  Serial.print("Connected to ");
-  Serial.println(ssid);
-  Serial.print("IP address: ");
-  Serial.println(WiFi.localIP());
-  
   //init and get the time
   configTime(gmtOffset_sec * 9, daylightOffset_sec, ntpServer);
   //printLocalTime();
