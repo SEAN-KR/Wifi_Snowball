@@ -10,10 +10,9 @@
 #include "logo.h"
 #include "web.h"
 #include "lcd.h"
+#include "WPS.h"
 
 const char* host       = "esp32";
-const char* ssid       = "NETGEAR06";
-const char* password   = "71115925";
 
 const char* ntpServer = "pool.ntp.org";
 const long  gmtOffset_sec = 3600;
@@ -69,7 +68,7 @@ void printLocalTime()
   //strftime(timeStringBuff, sizeof(timeStringBuff), "%A, %B %d %Y %H:%M:%S", &timeinfo);
   strftime(timeStringBuff, sizeof(timeStringBuff), "%A, %B %d %Y %H:%M", &timeinfo);
   //print like "const char*"
-  Serial.println(timeStringBuff);
+  //Serial.println(timeStringBuff);
   updatedrawtext(timeStringBuff, WHITE);
 }
 
@@ -112,7 +111,7 @@ void updatedrawtext(char *text, uint16_t color) {
     index = temp.indexOf(":");
     tft.print(temp.substring(index-2,index+3));
     // home the cursor
-    tft.setCursor(7,110);
+    tft.setCursor(0,110);
     
     // change the text color to foreground color
     tft.setTextColor(color, BLACK);
@@ -148,6 +147,11 @@ void beep(int repeat)
 }
 
 void setup() {
+  char temp[MAXCHAR];
+  String temp1;
+  char ssid[MAXCHAR];
+  char password[MAXCHAR];
+  
   Serial.begin(115200);
   Serial.println(VERSION);
   
@@ -155,7 +159,58 @@ void setup() {
   tft.fillScreen(BLACK);
   delay(1000);
   loading_popup();
+
+  if (!EEPROM.begin(EEPROM_SIZE))
+  {
+    Serial.println("failed to initialise EEPROM"); delay(1000000);
+  }
+  //Serial.println(eeprom_read(0));
+  //Serial.println(eeprom_read(1));
+
+  temp1 = eeprom_read(0);
+  temp1.toCharArray(ssid, temp1.length()+1);
+  temp1 = eeprom_read(1);
+  temp1.toCharArray(password, temp1.length()+1);
+
+  //Serial.println(temp1);
+  //Serial.println(ssid);
   
+  if(ssid[0] == (byte)0){
+    //set WPS 
+    WiFi.onEvent(WiFiEvent);
+    WiFi.mode(WIFI_MODE_STA);
+    Serial.println("Starting WPS");
+    
+    wpsInitConfig();
+    esp_wifi_wps_enable(&config);
+    esp_wifi_wps_start(0);
+  
+    while (WiFi.status() != WL_CONNECTED) {
+      delay(350);
+      Serial.print("$");
+    }
+    
+    eeprom_write(0, WiFi.SSID());
+    eeprom_write(1, WiFi.psk());
+  
+    Serial.println(eeprom_read(0));
+    Serial.println(eeprom_read(1));
+  
+  } else {
+    //connect to WiFi
+    Serial.printf("Connecting to %s ", ssid);
+    WiFi.begin(ssid, password);
+    while (WiFi.status() != WL_CONNECTED) {
+      delay(350);
+      Serial.print(".");
+    }
+  }
+//  Serial.println("");
+//  Serial.print("Connected to ");
+//  Serial.println(ssid);
+//  Serial.print("IP address: ");
+//  Serial.println(WiFi.localIP());
+
   // configure LED PWM functionalitites
   ledcSetup(ledChannel, freq, resolution);
   // attach the channel to the GPIO to be controlled
@@ -178,23 +233,9 @@ void setup() {
 
   // Start an alarm
   timerAlarmEnable(timer);
-
-   //connect to WiFi
-  Serial.printf("Connecting to %s ", ssid);
-  WiFi.begin(ssid, password);
-  while (WiFi.status() != WL_CONNECTED) {
-      delay(350);
-      Serial.print(".");
-  }
-  Serial.println("");
-  Serial.print("Connected to ");
-  Serial.println(ssid);
-  Serial.print("IP address: ");
-  Serial.println(WiFi.localIP());
   
   //init and get the time
   configTime(gmtOffset_sec * 9, daylightOffset_sec, ntpServer);
-  //printLocalTime();
 
   /*use mdns for host name resolution*/
   if (!MDNS.begin(host)) { //http://esp32.local
