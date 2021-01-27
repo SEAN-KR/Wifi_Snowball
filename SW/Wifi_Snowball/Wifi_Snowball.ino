@@ -158,6 +158,8 @@ void setup() {
   tft.begin();
   tft.fillScreen(BLACK);
   delay(1000);
+  tft.setRotation(2);
+  delay(1000);
   loading_popup();
 
   if (!EEPROM.begin(EEPROM_SIZE))
