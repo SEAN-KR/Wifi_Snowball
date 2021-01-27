@@ -167,6 +167,7 @@ void setup() {
   //Serial.println(eeprom_read(0));
   //Serial.println(eeprom_read(1));
 
+  // return value change to char* ???
   temp1 = eeprom_read(0);
   temp1.toCharArray(ssid, temp1.length()+1);
   temp1 = eeprom_read(1);

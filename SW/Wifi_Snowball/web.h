@@ -1,4 +1,4 @@
-#define VERSION "<h2>v0.1.1</h2>"
+#define VERSION "<h2>v0.1.2</h2>"
 
 /* Style */
 String style =
